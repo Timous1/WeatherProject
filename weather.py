@@ -17,8 +17,9 @@ params = {
 response = requests.get(url, params=params)
 data = response.json()
 
-print(data["main"]["temp"])
-print(data["dt"])
+#Debug:
+#print(data["main"]["temp"])
+#print(data["dt"])
 
 #Storing data in SQL database
 #Table: weather; Columns: temp, time (time will break in 2038)
@@ -26,12 +27,12 @@ conn = sqlite3.connect("weather.db")
 cursor = conn.cursor()
 cursor.execute("INSERT INTO weather (temp, time) VALUES (?,?)", (data["main"]["temp"], data["dt"]))
 conn.commit()
+
 # Query data
-############
-cursor.execute("SELECT * FROM weather")
-rows = cursor.fetchall()
+#cursor.execute("SELECT * FROM weather")
+#rows = cursor.fetchall()
 
 # Print results
-for row in rows:
-    print(row)
-conn.close()
+#for row in rows:
+#    print(row)
+#conn.close()
