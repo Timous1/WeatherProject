@@ -29,7 +29,7 @@ async def weather_stats(
     to_time: int | None = Query(None, alias="to", description = "End timestampt (Unix)"),
 ):
     #TIME FILTERING
-    query = "SELECT * FROM weather WHERE 1=1"
+    query = "SELECT MIN(temp), MAX(temp), AVG(temp) FROM weather WHERE 1=1"
     params=[]
 
 
@@ -58,10 +58,10 @@ async def weather_stats(
 
     #Translate to dictionary
     result = []
-    for id, temp, time in rows:
-        result.append({"temp": temp,
-                       "time": time,
-                       "bratislava_time": datetime.fromtimestamp(time).isoformat()
-                       })
+    print(rows)
+    for min_temp, max_temp, avg_temp in rows:
+        result.append({"min_temp": min_temp,
+                       "max_temp": max_temp,
+                       "avg_temp": avg_temp,})
 
     return result
