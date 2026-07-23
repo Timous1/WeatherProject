@@ -16,10 +16,12 @@ async def weather_data():
 
     #Translate to dictionary
     result = []
-    for id, temp, time in rows:
+    for id, temp, time, pressure, wind_speed in rows:
         result.append({"temp": temp,
                        "time": time,
-                       "bratislava_time": datetime.fromtimestamp(time).isoformat()})
+                       "bratislava_time": datetime.fromtimestamp(time).isoformat(),
+                       "pressure": pressure,
+                       "wind_speed": wind_speed})
 
     return result
 
@@ -29,7 +31,7 @@ async def weather_stats(
     to_time: int | None = Query(None, alias="to", description = "End timestampt (Unix)"),
 ):
     #TIME FILTERING
-    query = "SELECT MIN(temp), MAX(temp), AVG(temp) FROM weather WHERE 1=1"
+    query = "SELECT MIN(temp), MAX(temp), AVG(temp), MIN(pressure), MAX(pressure), AVG(pressure), MIN(wind_speed), MAX(wind_speed), AVG(wind_speed) FROM weather WHERE 1=1"
     params=[]
 
 
@@ -59,9 +61,15 @@ async def weather_stats(
     #Translate to dictionary
     result = []
     print(rows)
-    for min_temp, max_temp, avg_temp in rows:
+    for min_temp, max_temp, avg_temp, min_pressure, max_pressure, avg_pressure, min_wind_speed, max_wind_speed, avg_wind_speed in rows:
         result.append({"min_temp": min_temp,
                        "max_temp": max_temp,
-                       "avg_temp": avg_temp,})
+                       "avg_temp": avg_temp,
+                       "min_pressure": min_pressure,
+                       "max_pressure": max_pressure,
+                       "avg_pressure": avg_pressure,
+                       "min_wind_speed": min_wind_speed,
+                       "max_wind_speed": max_wind_speed,
+                       "avg_wind_speed": avg_wind_speed})
 
     return result

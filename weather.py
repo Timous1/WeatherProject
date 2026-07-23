@@ -25,7 +25,7 @@ data = response.json()
 #Table: weather; Columns: temp, time (time will break in 2038)
 conn = sqlite3.connect("weather.db")
 cursor = conn.cursor()
-cursor.execute("INSERT INTO weather (temp, time) VALUES (?,?)", (data["main"]["temp"], data["dt"]))
+cursor.execute("INSERT INTO weather (temp, time, pressure, wind_speed) VALUES (?,?,?,?)", (data["main"]["temp"], data["dt"], data["main"]["pressure"], data["wind"]["speed"]))
 conn.commit()
 
 # Query data
