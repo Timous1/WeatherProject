@@ -13,7 +13,7 @@ def email_alert(subject, body, to):
 
     user = "weather.project.email.alerts@gmail.com"
     msg["from"] = user
-    password = "rchvrjmejobarvve"#os.getenv("GMAIL_ALERT_PASSWORD")
+    password = os.getenv("GMAIL_ALERT_PASSWORD")
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
@@ -23,7 +23,7 @@ def email_alert(subject, body, to):
     server.quit()
 
 #Variables for gathering data from openweather
-key = "3f4f4e6b2a290797b99c9595be35dde3"#os.getenv("OPENWEATHER_API_KEY")
+key = os.getenv("OPENWEATHER_API_KEY")
 url = "https://api.openweathermap.org/data/2.5/weather"
 params = {
     "q": "Bratislava",
@@ -36,9 +36,6 @@ params = {
 response = requests.get(url, params=params)
 data = response.json()
 
-#Debug:
-#print(data["main"]["temp"])
-#print(data["dt"])
 
 if data["main"]["temp"]>10:
     email_alert("Too hot", "It is too hot", "timotxp@gmail.com")
@@ -49,12 +46,3 @@ conn = sqlite3.connect("weather.db")
 cursor = conn.cursor()
 cursor.execute("INSERT INTO weather (temp, time, pressure, wind_speed) VALUES (?,?,?,?)", (data["main"]["temp"], data["dt"], data["main"]["pressure"], data["wind"]["speed"]))
 conn.commit()
-
-# Query data
-#cursor.execute("SELECT * FROM weather")
-#rows = cursor.fetchall()
-
-# Print results
-#for row in rows:
-#    print(row)
-#conn.close()

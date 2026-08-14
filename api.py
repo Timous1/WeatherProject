@@ -1,9 +1,20 @@
 from fastapi import FastAPI, Query
 import sqlite3
 from datetime import datetime
+from pydantic import BaseModel, EmailStr
+
+#Class for creating alerts used in POST /alerts
+class AlertCreate(BaseModel):
+    email: EmailStr
+    location: str
+    metric: str
+    operator: str
+    threshold: float
+
 
 app = FastAPI()
 
+#Shows all weather data
 @app.get("/weather")
 async def weather_data():
     conn = sqlite3.connect("weather.db")
@@ -25,6 +36,8 @@ async def weather_data():
 
     return result
 
+
+#Shows minimum, max, avg of weather data. Defaults to the last 24h
 @app.get("/stats")
 async def weather_stats(
     from_time: int | None = Query(None, alias="from", description = "Start timestampt (Unix)"),
@@ -73,3 +86,83 @@ async def weather_stats(
                        "avg_wind_speed": avg_wind_speed})
 
     return result
+
+
+#Lets users create alerts
+@app.post("/alerts")
+async def create_alert(alert: AlertCreate):
+
+    connection = sqlite3.connect("weather.db")
+    cursor = connection.cursor()
+
+    #adds the alert to the database
+    cursor.execute("""
+        INSERT INTO alerts
+        (email, location, metric, operator, threshold)
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        alert.email,
+        alert.location,
+        alert.metric,
+        alert.operator,
+        alert.threshold
+    ))
+
+    connection.commit()
+
+    alert_id = cursor.lastrowid
+
+    connection.close()
+
+    return {
+        "id": alert_id,
+        "message": "Alert created successfully"
+    }
+
+
+#Lets users see all alerts (demonstration, normally would just show their alerts)
+@app.get("/alerts")
+async def get_alerts():
+
+    #Fetches all alerts from database
+    connection = sqlite3.connect("weather.db")
+    connection.row_factory = sqlite3.Row
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM alerts")
+
+    alerts = cursor.fetchall()
+
+    connection.close()
+
+    return [dict(alert) for alert in alerts]
+
+
+#Lets users delete alerts (demonstration, normally would just let them delete their alerts)
+#Deletes the alert with the id that the user called in the endpoint
+@app.delete("/alerts/{alert_id}")
+async def delete_alert(alert_id: int):
+
+    connection = sqlite3.connect("weather.db")
+    cursor = connection.cursor()
+
+    #Deleting the alert in the database
+    cursor.execute(
+        "DELETE FROM alerts WHERE id = ?",
+        (alert_id,)
+    )
+
+    connection.commit()
+
+    deleted = cursor.rowcount
+
+    connection.close()
+
+    #Returns an error if an alert with specified id doesnt exist
+    if deleted == 0:
+        return {"error": "Alert not found"}
+
+    return {
+        "message": "Alert deleted successfully"
+    }
