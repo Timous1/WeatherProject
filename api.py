@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query
 import sqlite3
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
+from database import get_enabled_alerts
 
 #Class for creating alerts used in POST /alerts
 class AlertCreate(BaseModel):
@@ -101,11 +102,14 @@ async def create_alert(alert: AlertCreate):
         (email, location, metric, operator, threshold)
         VALUES (?, ?, ?, ?, ?)
     """, (
+        #Works in the most intuitive way, that is checks if alert.metric is alert.operator alert.threshold so for example if we have temperature, >, 10
+        #the alert will send an email if temperature is above 10 degrees centigrade. If user already received a notification and since then the temperature has still been over
+        #10 degrees, then user will not receive a notification until the temperature drops below 10 and then rises again above 10.
         alert.email,
-        alert.location,
-        alert.metric,
-        alert.operator,
-        alert.threshold
+        alert.location, #Location as of yet not implemented, works only for Bratislava
+        alert.metric, #Accepts only "temperature", "pressure", "wind_speed"
+        alert.operator, #Accepts only "<", ">", "<=", ">="
+        alert.threshold #Real number
     ))
 
     connection.commit()
@@ -120,21 +124,11 @@ async def create_alert(alert: AlertCreate):
     }
 
 
-#Lets users see all alerts (demonstration, normally would just show their alerts)
+#Lets users see all enabled alerts (demonstration, normally would just show their alerts)
 @app.get("/alerts")
 async def get_alerts():
 
-    #Fetches all alerts from database
-    connection = sqlite3.connect("weather.db")
-    connection.row_factory = sqlite3.Row
-
-    cursor = connection.cursor()
-
-    cursor.execute("SELECT * FROM alerts")
-
-    alerts = cursor.fetchall()
-
-    connection.close()
+    alerts = get_enabled_alerts()
 
     return [dict(alert) for alert in alerts]
 
