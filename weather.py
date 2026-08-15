@@ -36,9 +36,9 @@ params = {
 response = requests.get(url, params=params)
 data = response.json()
 
-
-if data["main"]["temp"]>10:
-    email_alert("Too hot", "It is too hot", "timotxp@gmail.com")
+#Email Debug
+#if data["main"]["temp"]>10:
+#    email_alert("Too hot", "It is too hot", "timotxp@gmail.com")
 
 #Storing data in SQL database
 #Table: weather; Columns: temp, time (time will break in 2038)
