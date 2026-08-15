@@ -28,6 +28,7 @@ jobs:
       - name: Run weather script
         env:
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          GMAIL_ALERT_PASSWORD: ${{ secrets.GMAIL_ALERT_PASSWORD }}
         run: python weather.py
       
       - name: Commit and push database changes
