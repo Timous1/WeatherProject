@@ -19,7 +19,7 @@ def email_alert(subject, body, to):
 
     user = "weather.project.email.alerts@gmail.com"
     msg["from"] = user
-    password = "eupddfvncpuakqfz"#os.getenv("GMAIL_ALERT_PASSWORD")
+    password = os.getenv("GMAIL_ALERT_PASSWORD")
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
@@ -74,7 +74,7 @@ def check_alerts(weather_data):
 
 
 #Variables for gathering data from openweather
-key = "d0fbec3dc0c11eba87df811d5094691e"#os.getenv("OPENWEATHER_API_KEY")
+key = os.getenv("OPENWEATHER_API_KEY")
 url = "https://api.openweathermap.org/data/2.5/weather"
 params = {
     "q": "Bratislava",
